@@ -297,3 +297,176 @@ fn main() {
 Output : I got A in my school.
 
 Arithmetic operations cannot be performed directly on characters since they are not of integer or float types.
+
+To initialize a mulpitle variables:
+
+```rust
+fn main() {
+    let (x,y) = (1,2.2);
+    println!("The x cordinate is {} and y cordinate is {}", x,y);
+}
+```
+
+Output : The x cordinate is 1 and y cordinate is 2.2
+
+These two variables has different types.
+
+Sometimes we may be dealing with very large numbers inside our program.To make the large number more redeable, Rust allows the uses of "\_".
+
+```rust
+fn main() {
+    let large_number:i64= 1_000_000_000_000_000;
+    println!("The large number is {}", large_number);
+}
+```
+
+Output : The large number is 1000000000000000
+
+**Integer Overflow**
+
+```rust
+fn main() {
+    let x:u8 = 256;  // literal out of range for `u8`
+}
+```
+
+The upper limit for the u8 type is 255 and I'm trying to excede its limit.
+
+Rust also has very easy mechanism to display the decimal number in other base such as octal, binary and hexa.
+
+**Other Base**
+
+```rust
+fn main() {
+    let x:u8 = 255;
+    println!("Hex Value : {:X}", x);
+    println!("Octal Value : {:o}", x);
+    println!("Binary Value : {:b}", x);
+}
+```
+
+Output : Hex Value : FF
+Octal Value : 377
+Binary Value : 11111111
+
+The Rust assumes snake case for the variable.It refers to the style of writing in which first letter is lower case.
+
+**Operation on variable of different types**
+
+```rust
+fn main() {
+    let a=14;
+    let b = 7.5;
+    let sum = a+b as i32;
+    println!("Sum as n2 as i32 is {}", sum);
+}
+```
+
+Output : Sum as n2 as i32 is 21
+
+The data type of n2 will not be permanently changed to i32.It would just be treated as i32 with the addition command.
+
+To get the accurate result, we should change the value of n1 as of type f64.
+
+```rust
+fn main() {
+    let a=14;
+    let b = 7.5;
+    let sum = a as f64+b;
+    println!("Sum as n1 as f64 is {}", sum);
+}
+```
+
+Output : Sum as n1 as f64 is 21.5
+
+## Shadowing and Constants
+
+Let's explore the concepts of shadowing and constants in Rust.
+
+**Shadowing**
+
+Shadowing refers to the concept of updating or declaring a variable with the same name that has been previously used or declared in the program. There are several scenarios where shadowing can occur.
+
+In the first case, we shadow a variable using the same name and the let keyword.
+
+```rust
+fn main() {
+    let num = 1;
+    let num = 2;
+    println!("The value of num is {}.", num);
+}
+```
+
+Output: The value of num is 2.
+
+Here, the variable num is shadowed, and its previous value is replaced by the new value of 2.
+
+In the second case, we shadow a mutable variable with an immutable one.
+
+```rust
+fn main() {
+    let mut num = 1;
+    let num = 2;
+    println!("The value of num is {}.", num);
+}
+```
+
+Output: The value of num is 2.
+
+In this case, the variable num is initially declared as mutable (mut), but then it is shadowed with an immutable variable. Therefore, the variable is treated as immutable in this scope.
+
+The third case occurs when we change the type of a variable.
+
+```rust
+fn main() {
+    let num = 1;
+    println!("The value of num is {}.", num);
+    let num = 2.2;
+    println!("The value of num is {}.", num);
+}
+```
+
+Here, the value of num is first assigned as an integer (1), and later it is shadowed with a floating-point number (2.2). This allows us to reuse the same variable name with a different type.
+
+Lastly, shadowing can also occur within code segments that have different scopes defined by curly brackets.
+
+```rust
+fn main() {
+    let num = 1;
+    println!("The value of num is {}.", num);
+    {
+        let num = 2.2;
+        println!("The value of num inside the inner scope is {}.", num);
+    }
+    println!("The value of num outside the inner scope is {}.", num);
+}
+```
+
+Output:
+The value of num is 1.
+The value of num inside the inner scope is 2.2.
+The value of num outside the inner scope is 1.
+
+In this case, we have an inner scope defined by curly brackets. The variable num is shadowed inside the inner scope, and its value is different from the value of num in the outer scope.
+
+If we make num a mutable variable and remove the let keyword inside the inner scope, the value of num in the outer scope will be changed.
+
+**Constants**
+
+Constants are data values that remain the same and do not change during the execution of the program. They are declared using the const keyword and must have a type annotation. Rust naming convention for constants is to use all uppercase letters with underscores (\_) between individual words.
+
+```rust
+fn main() {
+    const PI: f64 = 3.14;
+    println!("The value of pi is {}.", PI);
+}
+```
+
+Constants are useful when you have a value that should not be modified throughout the program's execution.
+
+The key differences between mutable variables and constants are:
+
+- You are not allowed to use the mut keyword with constants.
+- Constants are declared using the const keyword instead of let.
+- Constants must have their type explicitly annotated; the compiler will not infer it.
+- Rust naming convention for constants is to use all uppercase letters with underscores (\_) between individual words.

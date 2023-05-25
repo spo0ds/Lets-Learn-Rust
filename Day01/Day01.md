@@ -470,3 +470,102 @@ The key differences between mutable variables and constants are:
 - Constants are declared using the const keyword instead of let.
 - Constants must have their type explicitly annotated; the compiler will not infer it.
 - Rust naming convention for constants is to use all uppercase letters with underscores (\_) between individual words.
+
+## Strings
+
+Strings in Rust are compound data types that can store more than one simple value, such as multiple characters or digits. Rust provides two main types for working with strings: &str and String.
+
+**&str**
+
+The &str type, also known as a string slice, represents an immutable string. It has a fixed size and cannot be mutated, meaning its value cannot be changed. The & symbol indicates that it is accessed using a reference. By default, when you declare a string literal, it is of type &str.
+
+```rust
+fn main() {
+    let favorite_language = "Rust";
+    println!("My favorite programming language is {}.", favorite_language);
+}
+```
+
+Output: My favorite programming language is Rust.
+
+**Strings**
+
+The String type, on the other hand, is a dynamic string that allows for more flexibility. It can be mutated, and you can perform various operations on it, such as adding or removing characters.
+
+```rust
+fn main() {
+    let mut favorite_language = String::from("Rust");
+    println!("My favorite programming language is {}.", favorite_language);
+}
+```
+
+The String type is useful when you need to manipulate strings dynamically. To add content to a String, you can use the push_str function.
+
+```rust
+fn main() {
+    let mut favorite_language = String::from("Rust");
+    println!("My favorite programming language is {}.", favorite_language);
+
+    favorite_language.push_str(" Programming");
+    println!("My favorite programming language is {}.", favorite_language);
+}
+```
+
+**Common Operations on Strings**
+
+You can perform various common operations on strings using built-in methods.
+
+```rust
+fn main() {
+    let mut favorite_language = String::from("Rust");
+
+    println!("Is the favorite_language string empty? {}", favorite_language.is_empty());
+    println!("The length of the string is {}.", favorite_language.len());
+    println!("The favorite_language variable has {} bytes.", favorite_language.capacity());
+    println!("Does the favorite_language contain the word 'Rust'? {}", favorite_language.contains("Rust"));
+}
+```
+
+To convert a number to a string, you can use the to_string method.
+
+```rust
+fn main() {
+    let num = 0;
+    println!("num = {}", num.to_string());
+    println!("Is the number really a string? {}", num.to_string() == "0");
+}
+```
+
+**Formatting and Concatenating Strings**
+
+You can format strings using the format! macro or concatenate strings together.
+
+```rust
+use std::fmt::format;
+
+fn main() {
+    let first_name = "John".to_string();
+    let last_name = "Benjamin".to_string();
+    let full_name = format!("First name: {}\tLast name: {}", first_name, last_name);
+    println!("Full name: {}", full_name);
+}
+```
+
+We can also concatenate strings together.
+
+```rust
+use std::fmt::format;
+
+fn main() {
+   let first_name = "John".to_string();
+   let last_name = "Benzamin".to_string();
+   let full_name = format!("Full name : {}{}", first_name, last_name);
+   println!("{}", full_name);
+}
+```
+
+To create an empty string, you can use the String::new() method.
+
+```rust
+let empty_string = String::new();
+```

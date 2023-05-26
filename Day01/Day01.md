@@ -674,3 +674,152 @@ println!("{:?}", check_index);
 ```
 
 Output: None
+
+## Vectors
+
+Vectors in Rust are collections that can store elements of the same type. Unlike arrays, vectors have a dynamic size, meaning they can grow or shrink as needed.
+
+To create a new vector, you can use the vec! macro followed by the elements enclosed in square brackets.
+
+```rust
+fn main() {
+    let mut numbers = vec![1, 2, 3];
+    println!("Numbers: {:?}", numbers);
+}
+```
+
+To add elements to a vector, you can use the push method.
+
+```rust
+numbers.push(4);
+```
+
+To remove an element from a specific index, you can use the remove method.
+
+```rust
+numbers.remove(2);
+```
+
+To check if a certain value exists inside a vector, you can use the contains method and pass a reference to the value as an argument.
+
+```rust
+println!("Does 10 exist in the numbers vector? {}", numbers.contains(&10));
+```
+
+The contains method requires a reference to the value because it needs to compare the value with the elements in the vector.
+
+Vectors are flexible and can hold any type of element, including complex types like structs or even other vectors. You can also perform various operations on vectors, such as sorting, filtering, and iterating over their elements.
+
+```rust
+// Sorting the vector
+numbers.sort();
+
+// Filtering the vector to keep only even numbers
+let even_numbers: Vec<i32> = numbers.into_iter().filter(|&n| n % 2 == 0).collect();
+
+// Iterating over the vector
+for number in &even_numbers {
+    println!("{}", number);
+}
+```
+
+## Functions
+
+Functions in Rust are program segments designed to perform specific tasks. They encapsulate a set of instructions that can be invoked and executed whenever needed.
+
+A simple function in Rust can be defined as follows:
+
+```rust
+fn main() {
+    simple_function();
+}
+
+fn simple_function() {
+    println!("Hello from the function");
+}
+```
+
+In this example, the main function calls another function called simple_function, which simply prints a greeting message.
+
+Functions can also take parameters, allowing you to pass values to them for processing. Here's an example:
+
+```rust
+fn main() {
+    get_name("James");
+}
+
+fn get_name(name: &str) {
+    println!("{} is my name.", name);
+}
+```
+
+The get_name function takes a parameter name of type &str, which represents a string slice. It then uses this parameter to print a personalized message.
+
+Functions can also return values. To define a function that returns a value, you specify the return type after the parameter list using the arrow -> notation. Here's an example:
+
+```rust
+fn main() {
+   println!("The sum is {}", sum(5, 10));
+}
+
+fn sum(x: i32, y: i32) -> i32 {
+    x + y
+}
+```
+
+In this case, the sum function takes two parameters x and y of type i32 and returns their sum as an i32 value.
+
+If a function needs to return multiple values, you can use tuples to achieve that. Here's an example:
+
+```rust
+fn main() {
+   let (sum, difference) = sum_and_difference(10, 7);
+   println!("The sum is {}", sum);
+   println!("The difference is {}", difference);
+}
+
+fn sum_and_difference(x: i32, y: i32) -> (i32, i32) {
+    (x + y, x - y)
+}
+```
+
+In this case, the sum_and_difference function takes two parameters x and y of type i32 and returns a tuple containing the sum and difference of the numbers.
+
+Rust allows you to define code blocks to store the result of the computation. This can be useful for organizing and managing complex operations. Here's an example:
+
+```rust
+let name = {
+    let first_name = "James";
+    let last_name = "Murphy";
+    format!("{} {}", first_name, last_name)
+};
+
+println!("Name is {}", name);
+```
+
+In this example, a code block is used to concatenate the first_name and last_name variables into a full name using the format! macro. The resulting name is then stored in the name variable and printed.
+
+Lastly, Rust provides functionality to read user input. User input is typically read as a string and can be converted to other data types as needed. Here's an example of reading user input and performing a sum:
+
+```rust
+fn main() {
+    let mut first_number = String::new();
+    let mut second_number = String::new();
+
+    println!("Enter the first number:");
+    std::io::stdin().read_line(&mut first_number).expect("Failed to read input");
+    let first_number: i32 = first_number.trim().parse().expect("Invalid input");
+
+    println!("Enter the second number:");
+    std::io::stdin().read_line(&mut second_number).expect("Failed to read input");
+    let second_number: i32 = second_number.trim().parse().expect("Invalid input");
+
+    println!("The sum is {}", sum(first_number, second_number));
+}
+
+fn sum(x: i32, y: i32) -> i32 {
+    x + y
+}
+```
+
+In this example, the user is prompted to enter two numbers, which are read as strings and converted to i32 using the parse method. The sum function is then called to compute the sum of the two numbers, which is printed as the output.

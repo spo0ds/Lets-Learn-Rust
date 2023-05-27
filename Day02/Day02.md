@@ -368,3 +368,31 @@ This error occurs because Rust prevents updating the data value of a variable wh
   
   If we remove the print statements from the code, the error will no longer occur. This is because the scope of the immutable references ends on the same line they are defined, allowing the subsequent mutable reference to be created.
 </details>
+
+## String Concatenation and Ownership
+
+In Rust, string concatenation involves considerations of ownership and memory management. The behavior differs depending on whether we are concatenating a String or a string slice (&str).
+
+```rust
+fn main() {
+   let s1 = String::from("Hello");
+   let s2 = "World";
+
+   let s3 = s1 + s2;
+}
+```
+
+When we use the + operator to concatenate a String (s1) and a string slice (s2), Rust performs an operation called "string concatenation with a string slice". The result of the concatenation is stored in the memory location pointed to by s1 on the heap. This means that the ownership of the value is transferred to s3, and the pointer s1 is no longer valid.
+
+To concatenate two String values, we need to use a slightly different approach:
+
+```rust
+fn main() {
+   let s1 = String::from("Hello");
+   let s2 = String::from("World");
+
+   let s3 = s1 + &s2;
+}
+```
+
+Here, the + operator is used to concatenate two String values (s1 and s2). The ownership of the first string, s1, is transferred to s3. The resulting concatenation is stored in the memory location pointed to by s3 on the heap. However, the ownership of the variable s2 remains unchanged since we are using a reference to it (&s2).

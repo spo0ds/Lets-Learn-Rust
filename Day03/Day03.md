@@ -225,3 +225,15 @@ fn main() {
 ```
 
 In this example, the loop iterates through the elements of the numbers array until it finds the first even number. Once the even number is found, the loop is terminated using break, and the value of the even number is returned.
+
+## Coding Time
+
+If you are not familiar with the concept of a stack, I would recommend watching a tutorial on YouTube to gain a better understanding. Once you have familiarized yourself with the stack data structure, you can proceed with implementing it in Rust.
+
+Implementing a stack in Rust will provide you with a valuable learning experience regarding the ownership rules in Rust. It will help you grasp the concepts of ownership, borrowing, and lifetimes, which are fundamental to writing safe and efficient Rust code.
+
+<details>
+  <summary>Click to see my simple stack implementation</summary>
+  
+  [stack](https://github.com/spo0ds/Lets-Learn-Rust/tree/main/Day03/Stack/src/main.rs)
+</details>

@@ -168,3 +168,60 @@ Output:
 Here, the `*` operator is called a dereference operator. When using a mutable reference, the variable itself acts as a pointer, not the actual value. To update the actual value pointed to by the variable, we use the `*` operator.
 
 In this case the variable i is set to type `&mut i32`.This gives us useful hint that instead of using this function, we can also use `&mut num` instead of num.iter_mut(.)
+
+## Break and Continue
+
+**Break Statement**
+
+The break statement is used to stop the execution of a loop. When encountered inside a loop, the break statement immediately terminates the loop, and control resumes at the next statement following the loop.
+
+```rust
+fn main() {
+    let mut num = 1000;
+    loop {
+        num = num - 1;
+        if num % 13 == 0 {
+            break;
+        }
+    }
+    println!("The highest number is {}", num);
+}
+```
+
+Output:
+The highest number is 988
+
+**Continue Statement**
+
+The continue statement is used to skip the current iteration of a loop and proceed with the next iteration. It allows for the skipping of certain statements within the loop, and the loop continues with the next iteration.
+
+```rust
+fn main() {
+    for number in 1..=10 {
+        if number % 2 == 0 {
+            continue;
+        }
+        println!("Odd number: {}", number);
+    }
+}
+```
+
+The continue statement is useful when we want to skip specific iterations based on certain conditions.
+
+The break statement can also be used to return a value from a loop. However, this is only valid with simple loops such as for and while loops.
+
+```rust
+fn main() {
+    let numbers = [1, 3, 5, 2, 7, 9, 4, 6, 8];
+    let mut i = 0;
+    let first_even = loop {
+        if numbers[i] % 2 == 0 {
+            break numbers[i];
+        }
+        i = i + 1;
+    };
+    println!("The first even number in the array is {}", first_even);
+}
+```
+
+In this example, the loop iterates through the elements of the numbers array until it finds the first even number. Once the even number is found, the loop is terminated using break, and the value of the even number is returned.

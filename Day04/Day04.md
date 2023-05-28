@@ -143,3 +143,134 @@ You can then call this function on an instance of the tuple structure, like this
 let num = Numbers(10, 15);
 println!("The greater among the two is {}", num.greater());
 ```
+
+## Traits and Default Implementations
+
+In Rust, traits are used to define shared behavior among different types. They provide an abstract definition of functionality that a particular type can have and share with other types. A trait consists of function signatures that can be called on types that implement the trait. By defining traits, we can group together function signatures to define a set of behaviors.
+
+To illustrate this, let's define two structs: Person and Student.
+
+```rust
+struct Person {
+    citizenship: String,
+    name: String,
+    age: u32,
+    gender: char,
+    salary: u32,
+}
+
+struct Student {
+    citizenship: String,
+    name: String,
+    age: u32,
+    sex: char,
+}
+```
+
+Next, we'll define a trait called GeneralInfo that provides general information about an instance of the Student or Person struct.
+
+```rust
+trait GeneralInfo {
+    fn info(&self) -> (&str, u32, char);
+    fn country_info(&self) -> &str;
+}
+```
+
+Inside the trait, we define function signatures without their detailed implementations.
+
+Now, outside the trait body, we can implement the trait for specific types, such as the Person struct.
+
+```rust
+impl GeneralInfo for Person {
+    fn info(&self) -> (&str, u32, char) {
+        (&self.name, self.age, self.gender)
+    }
+
+    fn country_info(&self) -> &str {
+        &self.citizenship
+    }
+}
+```
+
+The function signatures inside the impl block should match the ones defined in the trait. When implementing a trait for a specific type, all the required functions of the trait must be defined. In this case, we added a & before self because the return type is a string reference.
+
+Similarly, we can implement the GeneralInfo trait for the Student struct since it also has name, age, and sex information.
+
+```rust
+impl GeneralInfo for Student {
+    fn info(&self) -> (&str, u32, char) {
+        (&self.name, self.age, self.sex)
+    }
+
+    fn country_info(&self) -> &str {
+        &self.citizenship
+    }
+}
+```
+
+Now, let's use these trait functions inside the main function.
+
+```rust
+fn main() {
+    let person1 = Person {
+        citizenship: String::from("123A"),
+        name: String::from("James Newton"),
+        age: 25,
+        gender: 'M',
+        salary: 40_000,
+    };
+
+    let student1 = Student {
+        citizenship: String::from("432Z"),
+        name: String::from("Kristina Bale"),
+        age: 20,
+        sex: 'F',
+    };
+
+    println!("General info: {:?}", person1.info());
+    println!("Country info: {:?}", student1.country_info());
+}
+```
+
+**Default Implementations**
+
+Now, let's make some changes to the GeneralInfo trait by adding a default implementation for the country_info function directly inside the trait.
+
+```rust
+trait GeneralInfo {
+    fn info(&self) -> (&str, u32, char);
+
+    fn country_info(&self) -> &str {
+        "Not implemented"
+    }
+}
+```
+
+This is called a default implementation for a function. If a type doesn't provide its own implementation for a function defined inside the trait, the default implementation will be used.
+
+In the example, we comment out the country_info implementation in the Student struct. The compiler will not complain because, with the default implementation, we no longer need to provide an implementation for all the functions of a trait.
+
+```rust
+fn main() {
+    let student1 = Student {
+        citizenship: String::from("432Z"),
+        name: String::from("Kristina Bale"),
+        age: 20,
+        sex: 'F',
+    };
+
+    println!("Country info: {:?}", student1.country_info());
+}
+
+impl GeneralInfo for Student {
+    fn info(&self) -> (&str, u32, char) {
+        (&self.name, self.age, self.sex)
+    }
+
+    // fn country_info(&self) -> &str {
+    //     &self.citizenship
+    // }
+}
+```
+
+Now, when calling student1.country_info(), the default implementation from the trait will be used since there is no specific implementation provided for the Student struct.

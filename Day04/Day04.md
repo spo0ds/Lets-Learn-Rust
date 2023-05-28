@@ -274,3 +274,63 @@ impl GeneralInfo for Student {
 ```
 
 Now, when calling student1.country_info(), the default implementation from the trait will be used since there is no specific implementation provided for the Student struct.
+
+## Functions with Traits
+
+In this example, we will explore how functions defined within an implementation block of a trait for a specific type can call other functions within the same trait.
+
+Let's start by defining a structure called Data, which contains a vector of numbers.
+
+```rust
+struct Data {
+    num: Vec<i32>,
+}
+```
+
+Next, we'll define a trait called BasicStats, which includes functions to calculate the mean and variance.
+
+```rust
+trait BasicStats {
+    fn mean(&self) -> f32;
+    fn variance(&self) -> f32;
+}
+```
+
+Now, we can implement the BasicStats trait for the Data type.
+
+```rust
+impl BasicStats for Data {
+    fn mean(&self) -> f32 {
+        let mut sum = 0;
+        for i in self.num.iter() {
+            sum = sum + *i;
+        }
+        sum as f32 / self.num.len() as f32
+    }
+
+    fn variance(&self) -> f32 {
+        let mean_value = self.mean();
+        let mut sum_squared_diff: f32 = 0.0;
+        for i in self.num.iter() {
+            sum_squared_diff += (*i as f32 - mean_value) * (*i as f32 - mean_value);
+        }
+        sum_squared_diff / self.num.len() as f32
+    }
+}
+```
+
+To calculate the variance, we subtract each value from the mean of all the values in the vector and square the result. The squared differences are then summed together. This sum of squared differences is divided by the total number of values to obtain the variance. We store the mean value by calling the mean function for the same instance (self.mean()).
+
+Finally, let's call these functions within the main function.
+
+```rust
+fn main() {
+    let my_data = Data {
+        num: vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    };
+    println!("The mean of the data is {}", my_data.mean());
+    println!("The variance of the data is {}", my_data.variance());
+}
+```
+
+When running the program, it will output the mean and variance of the data. By implementing the BasicStats trait for the Data type, we can easily calculate these statistical measures for instances of the Data struct.

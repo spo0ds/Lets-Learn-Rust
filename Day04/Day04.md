@@ -334,3 +334,164 @@ fn main() {
 ```
 
 When running the program, it will output the mean and variance of the data. By implementing the BasicStats trait for the Data type, we can easily calculate these statistical measures for instances of the Data struct.
+
+## Enums
+
+Enums are a data type that consists of a set of named values called elements. They are useful for representing a group of related options or variations. For example, an enum representing colors may include variants such as Red, Blue, Green, and Orange.
+
+Let's consider a scenario in which a company organizes an event, and participants attend the event using different modes of transportation, such as cars, trains, and planes. Now, after the event, the company plans to reimburse the travel allowances to the participants based on their respective travel modes.
+
+To calculate the travel allowance, we can use enums. First, we define an enum called Conveyance, which represents the various modes of transportation.
+
+```rust
+enum Conveyance {
+    Car,
+    Train,
+    Aeroplane,
+}
+```
+
+Next, we declare a variable of the enum type within the main function.
+
+```rust
+fn main() {
+    let participant_1 = Conveyance::Car;
+}
+```
+
+To implement the travel allowance function for this specific enum, we follow the same approach as we did with functions associated with structures.
+
+```rust
+impl Conveyance {
+    fn travel_allowance(&self, miles: i32) -> f32 {
+        let allowance = match self {
+            Conveyance::Car => miles as f32 * 14.0 * 2.0,
+            Conveyance::Train => miles as f32 * 18.0 * 2.0,
+            Conveyance::Aeroplane => miles as f32 * 30.0 * 2.0,
+        };
+        allowance
+    }
+}
+```
+
+Now, let's use this function to compute the travel allowance for different participants.
+
+```rust
+fn main() {
+    let participant_1 = Conveyance::Car;
+    let participant_2 = Conveyance::Train;
+    let participant_3 = Conveyance::Aeroplane;
+
+    println!(
+        "Participant 1 has a travel allowance of {}",
+        participant_1.travel_allowance(50)
+    );
+}
+```
+
+We can also attach additional data to the enum variants instead of defining them separately. In our case, we can update the enum to include the miles associated with each variant.
+
+```rust
+enum Conveyance {
+    Car(i32),
+    Train(i32),
+    Aeroplane(i32),
+}
+```
+
+When declaring instances of the enum type within the main function, we can specify the miles associated with each variant.
+
+```rust
+let participant_1 = Conveyance::Car(50);
+let participant_2 = Conveyance::Train(60);
+let participant_3 = Conveyance::Aeroplane(70);
+```
+
+Since the miles information is already captured by the enum itself, we no longer need to mention it explicitly when calling the travel_allowance function.
+
+```rust
+fn main() {
+    let participant_1 = Conveyance::Car(50);
+    let participant_2 = Conveyance::Train(60);
+    let participant_3 = Conveyance::Aeroplane(70);
+
+    println!(
+        "Participant 1 has a travel allowance of {}",
+        participant_1.travel_allowance()
+    );
+}
+```
+
+Lastly, let's update the travel allowance function.
+
+```rust
+fn main() {
+    let participant_1 = Conveyance::Car(50);
+    let participant_2 = Conveyance::Train(60);
+    let participant_3 = Conveyance::Aeroplane(70);
+
+    println!(
+        "Participant 1 has a travel allowance of {}",
+        participant_1.travel_allowance()
+    );
+}
+```
+
+Enums can be used in various ways to achieve smart solutions. For instance, we can create a vector containing different types of data using enums, even though vectors typically require elements of the same type.
+
+```rust
+enum Value {
+    Integer(i32),
+    Float(f32),
+}
+```
+
+We can declare a vector with elements of the enum variant.
+
+```rust
+fn main() {
+    let values = vec![Value::Integer(7), Value::Float(3.5)];
+}
+```
+
+The type of the vector is set to the enum type, Value.
+
+```rustfn main() {
+    let values = vec![Value::Integer(7), Value::Float(3.5)];
+    println!("The value of the integer is {}", values[0]);
+    println!("The value of the float is {}", values[1]);
+}
+```
+
+However, when attempting to print the values, an error occurs: Value doesn't implement std::fmt::Debug. To ensure that the enum uses the required std::fmt::Display trait for printing, we add #[derive(Debug)] just before the enum definition.
+
+```rust
+#[derive(Debug)]
+enum Value {
+    Integer(i32),
+    Float(f32),
+}
+```
+
+After making this change, the output will be as follows:
+
+The value of the integer is Integer(7)
+The value of the float is Float(3.5)
+
+We can add additional logic to determine the exact type of the value.
+
+```rust
+for value in values.iter() {
+    match value {
+        Value::Integer(num) => println!("The value is an integer with a value of {}", num),
+        Value::Float(num) => println!("The value is a float with a value of {}", num),
+    }
+}
+```
+
+The output will be:
+
+The value is an integer with a value of 7
+The value is a float with a value of 3.5
+
+It's important to note that the requirement for a vector to have elements of a single type still holds in our case, as the vector contains values of the enum type, Value.

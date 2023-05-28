@@ -495,3 +495,105 @@ The value is an integer with a value of 7
 The value is a float with a value of 3.5
 
 It's important to note that the requirement for a vector to have elements of a single type still holds in our case, as the vector contains values of the enum type, Value.
+
+## Generics
+
+Generics enable us to write flexible and reusable code by abstracting over types. Instead of specifying concrete types, we can define functions and data structures in terms of generic types that are determined later based on the actual data they receive.
+
+To illustrate this, let's consider a scenario where we need to compute the square of a given number. Instead of writing separate functions for integers and floats, which would involve duplicating code, we can use generics to write a single function that works for both types.
+
+```rust
+fn main() {
+    println!("The square of the integer {} is {}.", 3, square(3));
+    println!("The square of the float {} is {}.", 3.5, square(3.5));
+}
+
+fn square<T>(x: T) -> T {
+    x * x
+}
+```
+
+However, when we write this code, the compiler notifies us that it cannot multiply T by T. Since T can be any type, Rust cannot perform multiplication for all possible cases. We need to provide the compiler with more information about the possible types that T can be by specifying certain traits for the type.
+
+```rust
+fn square<T: std::ops::Mul<Output = T> + Copy>(x: T) -> T {
+    x * x
+}
+```
+
+This code tells the Rust compiler that we are using a generic type T with the restriction that it must implement the Mul trait (which represents multiplication) and be Copy. The Output = T constraint in the Mul trait indicates that the result of the multiplication should be of type T.
+
+To make the code more readable when there are multiple trait restrictions, Rust provides an alternate syntax using the where clause.
+
+```rust
+fn square<T>(x: T) -> T
+where
+    T: std::ops::Mul<Output = T> + Copy,
+{
+    x * x
+}
+```
+
+Let's explore another example of generics using structures. Suppose we want to define a simple structure to represent a point, where a point is defined by two values. We can define the struct with a generic type.
+
+```rust
+struct Point<T> {
+    x: T,
+    y: T,
+}
+
+fn main() {
+    let p1 = Point { x: 3, y: 5 };
+    let p2 = Point { x: 3.5, y: 5.7 };
+}
+```
+
+This code works fine when x and y have the same type. However, if we want to allow different types for x and y, we can introduce another generic field using a different generic parameter.
+
+```rust
+struct Point<T, U> {
+    x: T,
+    y: U,
+}
+
+fn main() {
+    let p1 = Point { x: 3, y: 5 };
+    let p2 = Point { x: 3.5, y: 5.7 };
+    let p3 = Point { x: 3, y: 5.7 };
+}
+```
+
+Now the compiler is satisfied, and we can define functions on the Point struct. For example, let's define a function to print the values of the point.
+
+```rust
+impl<T: std::fmt::Debug, U: std::fmt::Debug> Point<T, U> {
+    fn print_point(&self) {
+        println!(
+            "The values of the point are x = {:?} and y = {:?}",
+            self.x, self.y
+        );
+    }
+}
+```
+
+Now we can use the print_point function to print the values of different points.
+
+```rust
+fn main() {
+    let p1 = Point { x: 3, y: 5 };
+    let p2 = Point { x: 3.5, y: 5.7 };
+    let p3 = Point { x: 3, y: 5.7 };
+
+    p1.print_point();
+    p2.print_point();
+    p3.print_point();
+}
+```
+
+Output:
+
+The values of the point are x = 3 and y = 5
+The values of the point are x = 3.5 and y = 5.7
+The values of the point are x = 3 and y = 5.7
+
+Throughout our journey, we have consistently utilized the power of generics, starting with the vector data structure.

@@ -657,3 +657,127 @@ fn square(num: Option<i32>) -> Option<i32> {
 ```
 
 In this code snippet, we define a function called square that takes an Option<i32> as a parameter. It squares the value if it exists and returns Some(result), otherwise it returns None. We then call this function and handle the options accordingly.
+
+## Result Enum
+
+The Result enum in Rust is another commonly used enum that is particularly useful for handling functions that can either produce a successful result (represented by the Ok variant) or encounter an error (represented by the Err variant). The Result enum is defined as follows:
+
+```rust
+enum Result<T, E> {
+    Ok(T),
+    Err(E),
+}
+```
+
+The generic types T and E can represent any value type and error type, respectively.
+
+Let's demonstrate the usage of the Result enum in a division function:
+
+```rust
+fn division(dividend: f64, divisor: f64) -> Result<f64, String> {
+    if divisor == 0.0 {
+        Err(String::from("Error: Division by zero"))
+    } else {
+        Ok(dividend / divisor)
+    }
+}
+
+fn main() {
+    println!("Division: {:?}", division(50.0, 5.0).unwrap());
+    println!("Division: {:?}", division(50.0, 0.0));
+    println!("Division: {:?}", division(50.0, 10.0).unwrap());
+}
+```
+
+In this code snippet, we define a division function that takes two f64 values as parameters and returns a Result<f64, String>. If the divisor is non-zero, the division is successful and we use the Ok variant to wrap the result. However, if the divisor is zero, we encounter an error and use the Err variant to wrap an error message represented by a String.
+
+In the main function, we call the division function with different arguments and handle the Result accordingly. We can use the unwrap method to directly access the value of a successful division, but it will panic if the Result is an error.
+
+The Result enum is extensively used by many built-in functions in Rust to handle potential errors and communicate the outcome of operations.
+
+## Hash Maps
+
+ChatGPT
+
+Hash Maps are a fundamental data structure in Rust that allow us to store and retrieve values based on unique keys. Think of a hash map as a collection of key-value pairs, similar to a dictionary. The keys in a hash map are used to access their corresponding values.
+
+To work with hash maps in Rust, we need to import the HashMap module from the standard library:
+
+```rust
+use std::collections::HashMap;
+```
+
+We can declare a new empty hash map as follows:
+
+```rust
+fn main() {
+    let mut person: HashMap<&str, i32> = HashMap::new();
+}
+```
+
+In this example, we're using string slices (&str) as keys and i32 as values for the hash map.
+
+To insert values into the hash map, we can use the insert method, specifying the key and value:
+
+```rust
+person.insert("John", 30);
+```
+
+To access a specific value in the hash map, we can use the key as an index:
+
+```rust
+println!("The age is {} years old.", person["John"]);
+println!("The age is {} years old.", person.get("John").unwrap());
+```
+
+We can check if a particular key exists in the hash map using the contains_key function, which returns a boolean value:
+
+```rust
+if person.contains_key("Kobe") {
+    println!("Key exists.");
+} else {
+    println!("Key doesn't exist.");
+}
+```
+
+Alternatively, we can use the get function to achieve the same result:
+
+```rust
+match person.get("John") {
+    Some(_) => println!("Key exists."),
+    None => println!("Key doesn't exist."),
+}
+```
+
+To iterate through all the key-value pairs in the hash map, we can use a for loop with the iter method:
+
+```rust
+for (name, age) in person.iter() {
+    println!("{} is {} years old.", name, age);
+}
+```
+
+When inserting a value for an existing key, the previous value in the hash map will be overwritten. However, we can use the entry method along with or_insert to insert a value only if the key doesn't already exist:
+
+```rust
+person.entry("John").or_insert(31);
+```
+
+Let's consider a program that uses a hash map to store the frequency of numbers in a vector:
+
+```rust
+use std::collections::HashMap;
+
+fn main() {
+    let num = vec![1, 1, 2, 3, 2, 4, 5, 1, 7, 5, 4, 2];
+    let mut freq: HashMap<i32, u32> = HashMap::new();
+
+    for i in num.iter() {
+        let value = freq.entry(*i).or_insert(0);
+        *value += 1;
+    }
+    println!("{:?}", freq);
+}
+```
+
+In this example, we iterate through the num vector and use the entry method to insert a value if it's not already present in the hash map. We then increment the frequency using \*value += 1. The final output displays the frequencies of the numbers.

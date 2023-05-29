@@ -134,3 +134,176 @@ fn some_fn(first_str: &str, second_str: &str) -> &str {
 In this code, we don't have dangling pointers. Variable v points to the s1 variable, which has a scope that spans the entire main function. The error we encounter is "missing lifetime specifier." Furthermore, the error message states, "this function's return type contains a borrowed value, but the signature does not say whether it is borrowed from first_str or second_str."
 
 This issue highlights undetermined lifetimes. The compiler needs explicit information to determine which variable the returning reference should correspond to, as it is unable to deduce this on its own.
+
+## Lifetimes specifier
+
+In the previous code examples, there was an issue related to missing lifetime specifiers. To address this problem, Rust allows us to explicitly specify lifetimes using generic lifetime parameters. These parameters impose lifetime constraints on references and return values in functions.
+
+To resolve the issue, let's modify the existing examples by using generic lifetime parameters:
+
+```rust
+fn some_fn<'a, 'b>(first_str: &'a str, second_str: &'b str) -> &'a str {
+    first_str
+}
+```
+
+In this code, 'a and 'b are generic lifetime specifiers that will be used by the inputs and outputs of the function. We specify that the variable first_str has a lifetime specified by 'a, and second_str has a lifetime specified by 'b. For the output, we mention that the return variable will be using the lifetime of first_str ('a). This tells the compiler that the lifetime of the returning variable is at least equal to the lifetime of first_str.
+
+The code will now compile without any errors.
+
+However, if we change the returning value from first_str to that of second_str, the compiler will complain again. It will raise an error of lifetime mismatch because the returning reference doesn't match the expected returning lifetime.
+
+Generic lifetime parameters are only needed when we use references as outputs from a function.
+
+Let's consider another example comparing two numbers with a slight change:
+
+```rust
+fn main() {
+    let x = 5;
+    let y = 10;
+    println!("The greater number is {}", greater(&x, &y));
+}
+
+fn greater(a: &i32, b: &i32) -> i32 {
+    if a > b {
+        *a
+    } else {
+        *b
+    }
+}
+```
+
+In this case, Rust will not complain because the return type is not a reference.
+
+Lifetime parameters are only specified with references. Let me modify the same program:
+
+```rust
+fn main() {
+    let x = 5;
+    let y = 10;
+    println!("The greater number is {}", greater(&x, y));
+}
+
+fn greater<'a>(a: &'a i32, b: i32) -> &'a i32 {
+    a
+}
+```
+
+If I try to add a generic lifetime parameter to the variable b in the function, the compiler will complain. Therefore, generic lifetime parameters are only used with references.
+
+**Issues with Multiple Lifetimes**
+
+Let's revisit the program containing the greater function:
+
+```rust
+fn main() {
+    let x = 5;
+    let y = 10;
+    println!("The greater number is {}", greater(&x, &y));
+}
+
+fn greater<'a, 'b>(a: &'a i32, b: &'b i32) -> &'a i32 {
+    if a > b {
+        a
+    } else {
+        b
+    }
+}
+```
+
+In this code, there are different lifetimes for the returning variables, which can either be 'a or 'b. Since the compiler anticipates the possibility of the variable b being the returning reference, it sees in advance that the variable b does not match the required returning lifetime.
+
+This means we need to closely consider the returning variables and take care of their lifetimes.
+
+**Correspondence of Lifetime with Minimal Lifetime**
+
+Let's make some changes to the same function:
+
+```rust
+fn main() {
+    let x = 5;
+    {
+        let y = 10;
+        let result = greater(&x, &y);
+        println!("The greater number is {}", result);
+    }
+}
+
+fn greater<'a, 'b>(a: &'a i32, b: &'a i32) -> &'a i32 {
+    if a > b {
+        a
+    } else {
+        b
+    }
+}
+```
+
+The two references passed to the greater function have different lifetimes or scopes. Variable x has a different lifetime than variable y. Since y has a smaller lifetime, it becomes a concrete lifetime. This means that all the parameters that have 'a written next to them have a lifetime at least as long as y. It also means that the variable result, which stores the returned reference, should be valid as long as y is valid. If we use the variable result outside the scope of y, we'll get a compilation error.
+
+**Generic Lifetime Parameters with Structures**
+
+Let's consider a scenario where we have a structure that has a field which is a reference itself:
+
+```rust
+struct Person {
+    name: &str,
+    age: u32,
+}
+```
+
+The name field in this case is a reference to a string slice. The Rust compiler complains that it's missing a lifetime specifier in the name field. Essentially, Rust warns that the reference to the field should live as long as the struct itself. To specify this, we need to use the Rust lifetime specifier:
+
+```rust
+struct Person<'a> {
+    name: &'a str,
+    age: u32,
+}
+```
+
+Let's now use the struct inside a program:
+
+```rust
+fn main() {
+    let first_name = "John";
+    let mut p1 = Person {
+        name: &first_name,
+        age: 40,
+    };
+    {
+        let last_name = String::from("Shelby");
+        p1.name = &last_name;
+    }
+    println!("{:?} is {:?} years old.", p1.name, p1.age);
+}
+```
+
+The compiler will give us an error message saying that the variable last_name didn't live long enough. This is because of the requirement that the field should live as long as the structure itself.
+
+**Reference to the Same Variable**
+
+```rust
+fn main() {
+    let num = vec![1, 4, 7, 5, 9, 3];
+    let return_vec = use_vec(&num, &num);
+}
+
+fn use_vec(vec1: &[i32], vec2: &[i32]) -> &[i32] {
+    if 3 > 5 {
+        vec1
+    } else {
+        vec2
+    }
+}
+```
+
+In this case, I'm passing the same vector twice. As expected, without the lifetime specifier, the compiler will complain. Although we're passing the same vector, the compiler is still unable to determine which variable the output reference corresponds to, even though we know they are the same. Therefore, it needs explicit lifetimes to avoid possible confusion. Let's add the lifetime parameters:
+
+```rust
+fn use_vec<'a>(vec1: &'a [i32], vec2: &'a [i32]) -> &'a [i32] {
+    if 3 > 5 {
+        vec1
+    } else {
+        vec2
+    }
+}
+```

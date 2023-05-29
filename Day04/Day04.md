@@ -697,8 +697,6 @@ The Result enum is extensively used by many built-in functions in Rust to handle
 
 ## Hash Maps
 
-ChatGPT
-
 Hash Maps are a fundamental data structure in Rust that allow us to store and retrieve values based on unique keys. Think of a hash map as a collection of key-value pairs, similar to a dictionary. The keys in a hash map are used to access their corresponding values.
 
 To work with hash maps in Rust, we need to import the HashMap module from the standard library:

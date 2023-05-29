@@ -597,3 +597,63 @@ The values of the point are x = 3.5 and y = 5.7
 The values of the point are x = 3 and y = 5.7
 
 Throughout our journey, we have consistently utilized the power of generics, starting with the vector data structure.
+
+In Rust, there are two frequently used enums that serve specific purposes in certain situations. These enums are called Option and Result.
+
+## Option Enum
+
+The Option enum is commonly used when we need to handle the possibility of failure or the absence of a value within a program segment. It consists of two variants. The first variant is None, which signifies the absence or failure of a value. The second variant is Some, which is a tuple struct that wraps a value of type T, where T is a generic type.
+
+```rust
+fn main() {
+    let mut disease: Option<String> = None;
+    disease = Some(String::from("Diabetes"));
+
+    match disease {
+        Some(disease) => println!("You got {}", disease),
+        None => println!("You're healthy"),
+    }
+}
+```
+
+Let's explore an example of using the Option enum to check the existence of values of different types.
+
+```rust
+fn main() {
+    let s1: Option<&str> = Some("Hello");
+    println!(
+        "The value of s1 is {:?}, and s1 itself is {:?}",
+        s1,
+        s1.unwrap()
+    );
+}
+```
+
+Output:
+
+The value of s1 is Some("Hello"), and s1 itself is "Hello"
+
+We can also pass variables of the Option type as function parameters. Here's an example:
+
+```rust
+fn main() {
+    let num = Some(6);
+    if square(num) != None {
+        println!(
+            "The result of the square is {:?}",
+            square(Some(num).unwrap()).unwrap()
+        );
+    } else {
+        println!("Value missing");
+    }
+}
+
+fn square(num: Option<i32>) -> Option<i32> {
+    match num {
+        Some(number) => Some(number * number),
+        None => None,
+    }
+}
+```
+
+In this code snippet, we define a function called square that takes an Option<i32> as a parameter. It squares the value if it exists and returns Some(result), otherwise it returns None. We then call this function and handle the options accordingly.

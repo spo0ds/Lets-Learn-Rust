@@ -511,3 +511,172 @@ fn main() {
 When we assign the value of x to y using let y = x;, the Rust compiler infers that the value is being moved or the ownership is being transferred. Therefore, it uses the original values and not references. Since the ownership has been transferred inside the closure, using x in the print statement is invalid because x is no longer in scope and has lost ownership.
 
 Furthermore, the y variable is also dropped because its scope was limited to the body of the closure.
+
+## Function Types
+
+Function pointer types are used to refer to functions whose identities are not necessarily known at compile time. Unlike referencing data values, a function pointer points to executable code within memory. By using function pointers, we can define variables that have function types, meaning they can point to different functions, and we can change the pointer at runtime to point to different functions.
+
+Here's an example in Rust:
+
+```rust
+fn main() {
+    let mut f = max;
+    println!("The maximum of the two values is {}", f(10, 25));
+}
+
+fn max(x: i32, y: i32) -> i32 {
+    if x > y {
+        x
+    } else {
+        y
+    }
+}
+```
+
+**Uses of Function Types**
+
+**Function Types as Parameters to Functions**
+
+Function types can be used as parameters to other functions. Here's an example:
+
+```rust
+fn main() {
+    display(max, 10, 25);
+}
+
+fn max(x: i32, y: i32) -> i32 {
+    if x > y {
+        x
+    } else {
+        y
+    }
+}
+
+fn display(f: fn(i32, i32) -> i32, x: i32, y: i32) {
+    println!("The maximum number is {}", f(x, y));
+}
+```
+
+In this example, the display function takes a function of type fn(i32, i32) -> i32 as a parameter. It then calls the provided function (f) with the given values (x and y).
+
+## Iterators
+
+An iterator represents a sequence of items and provides methods for retrieving and manipulating those items one at a time. When you're looping over something, you're likely already using an iterator. If you're transforming collections, you should consider using iterators as well. Essentially, whenever you use a for loop in your program, you're likely interacting with some kind of iterator. Iterators in Rust are typically based on the .iter function.
+
+Here's an example of creating an iterator in Rust:
+
+```rust
+fn main() {
+    let numbers = vec![1, 2, 3, 4, 5];
+    let mut iter = numbers.iter();
+}
+```
+
+In this code, the iter variable is an iterator that allows us to iterate through all the values of the numbers vector. By default, the iterator doesn't perform any useful actions. It becomes relevant when we apply operations to it. In other words, iterators have no effects until you call methods that consume the iterator. For this reason, they're sometimes referred to as being "lazy."
+
+We can print the value of the iterator to see the captured values:
+
+```rust
+println!("The value of iter is {:?}", iter);
+```
+
+Output:
+
+The value of iter is Iter([1, 2, 3, 4, 5])
+
+All the values of the vector are captured by the iterator.
+
+One of the key functions related to iterators is the .next function. It returns an Option enum, which can be either Some or None. The first call to next will return Some with the value of 1.
+
+```rust
+println!("{:?}", iter.next());
+```
+
+Output: Some(1)
+
+Each subsequent call to next will return the next value in the iterator. When there are no more values in the vector, next will return None.
+
+There are many other useful functions available for iterators.
+
+**Useful Functions for Iterators**
+
+**any function**
+
+The any function uses a closure to determine if a certain condition is matched by any of the values in the iterator. If any value satisfies the condition, it returns true; otherwise, it returns false.
+
+```rust
+fn main() {
+    let numbers = vec![1, 2, 3, 4, 5];
+    let mut check = numbers.iter().any(|&x| x > 4);
+    println!("Status of any value greater than 4 in `numbers` is {}", check);
+}
+```
+
+Output: Status of any value greater than 4 in 'numbers' is true
+
+**all function**
+
+The all function checks if all values in the iterator satisfy a given condition.
+
+```rust
+fn main() {
+    let numbers = vec![1, 2, 3, 4, 5];
+    let mut check = numbers.iter().all(|&x| x > 4);
+    println!("Status of all values greater than 4 in `numbers` is {}", check);
+}
+```
+
+**find function**
+
+The find function searches for an element in an iterator that satisfies a given condition. It takes a closure as an argument and returns an Option enum with the value inside it, wrapped in a reference. The closure is applied to each element of the iterator, and if the condition is met, find returns Some with the element. find stops processing as soon as the condition in the closure becomes true for a certain element.
+
+```rust
+fn main() {
+    let numbers = vec![1, 2, 3, 4, 5];
+    let mut check = numbers.iter().find(|&&x| x > 4);
+    println!("Status of any value greater than 4 in `numbers` is {:?}", check);
+}
+```
+
+In this example, &&x is used because .iter uses references, so the values given to the find function are behind references. The closure also uses references to access the actual values.
+
+The any and find functions are similar but have slight differences. The any function returns a boolean value (true or false) if the condition is met by any value, while the find function returns the value wrapped in an Option enum.
+
+**position function**
+
+The position function returns the index of an element that matches a given condition. It accepts a closure and checks for a certain condition. The function stops processing as soon as the condition becomes true for a certain element. The output of the function is an Option enum.
+
+```rust
+fn main() {
+    let numbers = vec![1, 2, 3, 4, 5];
+    let mut check = numbers.iter().position(|&x| x > 4);
+    println!("Index of a value greater than 4 in `numbers` is {:?}", check.unwrap());
+}
+```
+
+Sometimes we want to find the position from the extreme right:
+
+```rust
+let mut check = numbers.iter().rposition(|&x| x > 4);
+```
+
+**Functions to Compute Basic Statistics for Vectors**
+
+**max function**
+
+```rust
+let max_num = numbers.iter().max();
+println!("Maximum number in `numbers` is {:?}", max_num.unwrap());
+```
+
+The output of this function is an Option enum, so we use unwrap to extract the value. If several elements are equally maximum, the last element is returned.
+
+Similar to max, we also have a min function.
+
+**reverse function**
+
+```rust
+let reversed = numbers.iter().rev();
+```
+
+If you print the value of reversed, it won't be in reverse order. However, if you change iter to iter.next, you'll get the first value from the end of the iterator.

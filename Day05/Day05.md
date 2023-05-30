@@ -680,3 +680,50 @@ let reversed = numbers.iter().rev();
 ```
 
 If you print the value of reversed, it won't be in reverse order. However, if you change iter to iter.next, you'll get the first value from the end of the iterator.
+
+**Modifying and Collecting Values with Iterators**
+
+In Rust, iterators provide powerful functionality for modifying and collecting values. One such function is collect, which transforms an iterator into a collection such as an array, vector, or another type of collection. The collect function is widely used in various contexts.
+
+```rust
+fn main() {
+    let numbers = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+    let filtered_numbers = numbers.iter().filter(|&x| *x > 5).collect::<Vec<&i32>>();
+    println!("Filtered values: {:?}", filtered_numbers);
+}
+```
+
+The filter function creates an iterator that uses a closure to determine whether an element should be yielded or not. Therefore, the output of this function is also an iterator. The values returned to us are references to the original elements. If you want the values themselves, you can use into_iter instead of iter.
+
+```rust
+let filtered_numbers = numbers.into_iter().filter(|x| *x > 5).collect::<Vec<i32>>();
+```
+
+Using into_iter takes ownership of the vector, so you can no longer use the numbers variable afterwards. If you need to use the original vector later on, you can make a copy of it:
+
+```rust
+let cloned_numbers = numbers.clone();
+```
+
+Another useful function related to iterators is map.
+
+**map function**
+
+The map function takes a closure and creates an iterator that calls that closure on each element, modifying the values. It then returns another iterator with the modified values. For example, if you want to multiply all the values in a vector by 2, you can use map:
+
+```rust
+fn main() {
+    let numbers = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+    let cloned_numbers = numbers.clone();
+    let filtered_numbers = numbers.into_iter().filter(|x| *x > 5).collect::<Vec<i32>>();
+    println!("Filtered values: {:?}", filtered_numbers);
+    let mapped_numbers = cloned_numbers.iter().map(|x| *x * 2).collect::<Vec<i32>>();
+    println!("Mapped values: {:?}", mapped_numbers);
+}
+```
+
+The mapped values can be further filtered and collected using other iterator functions.
+
+**Important Point to Note**
+
+If we look at the line of code where the filter function is first used with iter, we can see that the input is behind two references (check on your IDE). However, in the line where filter is used together with map, the input to the filter function is behind a single reference. Therefore, we don't need to mention an additional & before the variable x. This means that the input type may change depending on the functions used after it. It's important to pay special attention to such cases by examining the types of the inputs. In particular, try to convert the type to a single reference by either adding or removing the & sign before the variable name. This will help you correctly interpret the values and references.

@@ -307,3 +307,112 @@ fn use_vec<'a>(vec1: &'a [i32], vec2: &'a [i32]) -> &'a [i32] {
     }
 }
 ```
+
+## Closures : Anonymous Functions
+
+In Rust, closures are a powerful feature that allows us to create anonymous functions. When combined with functions that take closures as arguments, they enable us to achieve remarkable functionality. Closures are defined using the || and enclosed inside {} syntax. Let's explore closures with a simple example:
+
+```rust
+fn main() {
+    let x = 5;
+    let square = || println!("The square of variable x is {}", x * x);
+    square();
+}
+```
+
+One key aspect of closures is that they capture their environment. This means that closures can access variables from the code segment in which they are defined. In the example above, the variable x is known inside the closure body. This behavior is different from functions, where only variables defined within the body or passed as arguments are accessible. In this case, even though we didn't pass the variable x to the closure, it is still accessible inside the closure body.
+
+We can also define closures that accept input:
+
+```rust
+fn main() {
+    let x = 5;
+    let square = |num: i32| println!("The square of {} is {}", num, num * num);
+    square(x);
+}
+```
+
+We can reuse closures just like functions in subsequent code:
+
+```rust
+fn main() {
+    let x = 5;
+    let square = |num: i32| println!("The square of {} is {}", num, num * num);
+    square(x);
+
+    let y = 10;
+    square(y);
+}
+```
+
+This means that closures are reusable and can be called multiple times.
+
+Now let's explore some interesting aspects of closures.
+
+If we redefine a variable with a different closure, the new definition will be used:
+
+```rust
+fn main() {
+    let x = 5;
+    let square = |num: i32| println!("The square of {} is {}", num, num * num);
+    let square = |num: i32| println!("The cube of {} is {}", num, num * num * num);
+    square(x);
+
+    let y = 10;
+    square(y);
+}
+```
+
+Ownership rules for closures are applied similarly to functions:
+
+```rust
+fn main() {
+    let user_info = |general_info: String, name: &str, age: u32| {
+        println!("{} \t {} \t {}", general_info, name, age)
+    };
+    let general_info = String::from("The details are");
+    let (user_name, user_age) = (String::from("James Shelby"), 29);
+
+    user_info(general_info, &user_name, user_age);
+}
+```
+
+In this case, the ownership of the general_info variable is transferred to the variable inside the closure, while the ownership of user_name remains with user_name.
+
+Closures are capable of inferring their input and output types. Unlike functions where we have to explicitly specify the types, closures can deduce them:
+
+```rust
+fn main() {
+    let square = |num| num * num;
+    let x = 5;
+    square(x);
+}
+```
+
+If we call the closure with a different type of input, Rust will complain because it automatically infers the type of num based on the type of x and determines the return type.
+
+Furthermore, closures can be passed as parameters to functions:
+
+```rust
+fn main() {
+    let division_status = |y: f32| {
+        if y != 0.0 {
+            true
+        } else {
+            false
+        }
+    };
+
+    division(10.0, 5.0, division_status);
+}
+
+fn division<F: Fn(f32) -> bool>(x: f32, y: f32, f: F) {
+    if f(y) {
+        println!("The division result is {}", x / y);
+    } else {
+        println!("Division is not possible");
+    }
+}
+```
+
+In this example, we define a closure division_status that checks if the division is possible by checking if y is not equal to 0.0. We then pass this closure as a parameter to the division function, which takes a closure that accepts a f32 and returns a bool. Inside the function, we use the closure to determine whether the division is possible and perform the division accordingly.

@@ -416,3 +416,98 @@ fn division<F: Fn(f32) -> bool>(x: f32, y: f32, f: F) {
 ```
 
 In this example, we define a closure division_status that checks if the division is possible by checking if y is not equal to 0.0. We then pass this closure as a parameter to the division function, which takes a closure that accepts a f32 and returns a bool. Inside the function, we use the closure to determine whether the division is possible and perform the division accordingly.
+
+## In-Depth Understanding of Closure Capturing Environment
+
+Let's delve into a detailed exploration of closure capturing environments in Rust.
+
+**Borrowing with Immutable Reference**
+
+When a closure uses an immutable reference to a variable inside the code, it captures the environment as follows:
+
+```rust
+fn main() {
+    let mut x = vec![1, 2, 3, 4, 5];
+    let some_closure = || {
+        println!("Vector is {:?}", x);
+    };
+    println!("Vector is {:?}", x);
+    some_closure();
+}
+```
+
+In this case, the closure doesn't require explicit input parameters. Instead, since the closure captures its environment, all variables in the current scope will be available inside the closure. The Rust compiler determines how to use the variable inside the closure, as it's not specified in the closure's inputs and outputs. By default, if the value is not updated inside the closure, the Rust compiler assumes that the variable will be used as an immutable reference.
+
+Since the variable inside the closure is used as an immutable reference, x remains accessible because it's borrowed by reference.
+
+If we attempt to update the vector, Rust will rightly complain because the vector is borrowed as immutable, and we cannot change its value until the immutable reference goes out of scope.
+
+Once some_closure is completed, the immutable reference is out of scope, and we can update the value of x:
+
+```rust
+fn main() {
+    let mut x = vec![1, 2, 3, 4, 5];
+    let some_closure = || {
+        println!("Vector is {:?}", x);
+    };
+    x[1] = 10; // Compiler will complain
+    println!("Vector is {:?}", x);
+    some_closure();
+    x[1] = 10; // Compiler will not complain
+}
+```
+
+Closures in Rust differ from typical functions. A typical function gets a chance to execute only when it is called from the main function or another function. However, as soon as we declare a closure and assign it to a variable, since the variable is in scope, the definition of the closure is also tied to the variable in some sense. As a result, after the some_closure call is completed, the immutable reference ends, allowing us to modify or update the value of the vector.
+
+**Borrowing with Mutable Reference**
+
+Now let's see what happens when a closure uses a mutable reference to a variable:
+
+```rust
+fn main() {
+    let mut x = vec![1, 2, 3, 4, 5];
+    let mut some_closure = || {
+        x.push(6);
+        println!("Vector is {:?}", x);
+    };
+    some_closure();
+}
+```
+
+Since the closure modifies the variable, the Rust compiler infers that the variable will be borrowed by the closure as a mutable reference. As a result, until some_closure is in scope, we cannot have an immutable reference to the same variable. Additionally, the variable some_closure remains in scope until it is used for the last time. Note that we need to declare the some_closure variable as mut because the closure it represents will update the value of a variable, requiring it to be mutable.
+
+To illustrate this further, we can add a print statement before calling the closure:
+
+```rust
+fn main() {
+    let mut x = vec![1, 2, 3, 4, 5];
+    let mut some_closure = || {
+        x.push(6);
+        println!("Vector is {:?}", x);
+    };
+    println!("Vector is {:?}", x);
+    some_closure();
+}
+```
+
+This code results in an error because x is borrowed as mutable, and therefore, an immutable borrow is not allowed.
+
+Similarly, updating the vector before calling the closure is also not allowed because having multiple mutable borrows to the same variable violates Rust's ownership rules.
+
+**Moving a Value into a Closure**
+
+```rust
+fn main() {
+    let mut x = vec![1, 2, 3, 4, 5];
+    let mut some_closure = || {
+        let y = x;
+    };
+    some_closure();
+    println!("X is {:?}", x);
+    println!("Y is {:?}", y);
+}
+```
+
+When we assign the value of x to y using let y = x;, the Rust compiler infers that the value is being moved or the ownership is being transferred. Therefore, it uses the original values and not references. Since the ownership has been transferred inside the closure, using x in the print statement is invalid because x is no longer in scope and has lost ownership.
+
+Furthermore, the y variable is also dropped because its scope was limited to the body of the closure.

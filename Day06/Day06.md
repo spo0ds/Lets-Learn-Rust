@@ -61,3 +61,272 @@ fn main() {
     crate2::printing();
 }
 ```
+
+We will now focus on the details of modules in Rust.
+
+To create a new crate inside the source folder, we can create a file named "crate1.rs". Within this file, we can define modules by using the mod keyword. For example:
+
+```rust
+mod maths {}
+```
+
+In this case, we are creating a module named "maths" to handle math-related operations.
+
+Modules can contain other modules as well. To create a submodule inside the "maths" module, we can do the following:
+
+```rust
+mod maths {
+    mod basic_math {}
+}
+```
+
+This means that we now have an upper-level module called "maths" which contains a submodule called "basic_math".
+
+Inside the submodule, we can define functions for specific computations. For example, we can define a function for multiplying two numbers:
+
+```rust
+mod maths {
+    mod basic_math {
+        fn mul(x: &i32, y: &i32) -> i32 {
+            x * y
+        }
+    }
+}
+```
+
+Now, the function defined inside the module can be used by other functions within the same crate. For instance, we can use the multiplication function to compute the area of a rectangle:
+
+```rust
+mod maths {
+    mod basic_math {
+        fn mul(x: &i32, y: &i32) -> i32 {
+            x * y
+        }
+    }
+}
+
+fn rect_area(length: &i32, breadth: &i32) -> i32 {
+    maths::basic_math::mul(length, breadth)
+}
+```
+
+However, we encounter an error message stating that the module "basic_math" is private. The parent module cannot see the functions within the child module, but the child module can see the functions within the parent module. To make sure that functions are accessible within the child module, we need to use the pub keyword for both the child module and the function itself.
+
+Now, let's use the crate "crate1.rs" inside the main function. Note that the crate name is also considered a module from the perspective of the outside world. At the top level of the crate, we have "crate1" as the module. Inside this module, we have the "maths" module, and inside the "maths" module, we have the submodule "basic_math". Inside "basic_math", we have the "mul" function.
+
+Since "rect_area" is not included in any module, it will be included in the default module, which is the crate itself. This means that anything not included in any module within this crate will be included in the default module, which is the name of the crate itself.
+
+In order to access items at deeper levels, we need to declare them as pub.
+
+```rust
+mod crate1;
+
+fn main() {
+    let rect1 = Rectangle {
+        length: 10,
+        breadth: 7,
+    };
+    println!(
+        "The area of the rectangle is {}",
+        crate1::rect_area(&rect1.length, &rect1.breadth)
+    );
+}
+
+struct Rectangle {
+    length: i32,
+    breadth: i32,
+}
+```
+
+However, the compiler is still complaining that "rect_area" is private. To resolve this, we need to make the "mul" function public by adding the pub keyword in front of it.
+
+Inside the "basic_math" module, let's add a function for printing:
+
+```rust
+mod maths {
+    pub mod basic_math {
+        pub fn mul(x: &i32, y: &i32) -> i32 {
+            x * y
+        }
+
+        fn printing(num: &i32) {
+            println!("The result is {}", num);
+        }
+    }
+}
+```
+
+We can now see that we haven't used the pub keyword with the "printing" function, and the compiler is happy. Functions within a module can access each other without the pub keyword.
+
+Now, let's see how a child module can access functions defined in a parent module. We define a function inside the main module, "crate1":
+
+```rust
+fn parent_fn() {
+    println!("Here from the parent module");
+}
+```
+
+To access this function inside the "printing" function, we can use the fully qualified path:
+
+```rust
+fn printing(num: &i32) {
+    println!("The result is {}", num);
+    crate::parent_fn();
+}
+```
+
+Although the function "parent_fn" is not public, we can still access it without any issues.
+
+Sometimes, it may not be convenient to always mention the full path of a certain function, especially if it is used repeatedly. In this case, we can use the use statement to reduce the path information. For example, in the "rect_area" function, we can write:
+
+```rust
+pub fn rect_area(length: &i32, breadth: &i32) -> i32 {
+    use maths::basic_math;
+    basic_math::mul(length, breadth)
+}
+```
+
+We can also add more specific information with the use statement:
+
+```rust
+pub fn rect_area(length: &i32, breadth: &i32) -> i32 {
+    use maths::basic_math::mul;
+    mul(length, breadth)
+}
+```
+
+Sometimes, we may want to include all modules and functions within the same crate, which is the main crate. Typically, we would separate them into different files, but for some reason, let's assume that we want to use a single file as the main crate. To achieve this, we need to make a few changes.
+
+First, copy all the code from "crate1.rs" and paste it into "main.rs". Since all the statements are in the same file now, we can remove the line:
+
+```rust
+mod crate1;
+```
+
+Since "rect_area" is in the same file and not inside any module, we can remove "crate1" from its beginning:
+
+```rust
+crate1::rect_area(&rect1.length, &rect1.breadth) // remove this
+
+rect_area(&rect1.length, &rect1.breadth)
+```
+
+This also means that we don't need to make it public anymore, so we can remove the pub keyword from its beginning.
+
+We can notice that we have an error in the "printing" function. This is because inside modules, especially the child module, we need to explicitly tell them where to look for the function. So we'll remove "crate1" while calling the "parent_fn" function:
+
+```rust
+fn printing(num: &i32) {
+    println!("The result is {}", num);
+    crate::parent_fn();
+}
+```
+
+Now let's cover a few important points regarding modules.
+
+The first point is the privacy of structures used inside modules. To explain this, let's create a new crate by creating a new file named "crate2.rs". Inside this file, we'll create a module called "Person":
+
+```rust
+mod Person {
+    struct Personal_info {
+        age: u8,
+        education: String,
+    }
+}
+```
+
+Next, we'll create an implementation block for the structure:
+
+```rust
+impl Personal_info {
+    pub fn new(new_edu: &str) -> Self {
+        Self {
+            education: String::from(new_edu),
+            age: 20,
+        }
+    }
+}
+```
+
+Now, outside the module body, we'll create a function that we'll use in the main crate, so it needs to be public:
+
+```rust
+pub fn person() {
+    println!("From the person function");
+}
+```
+
+Moving to "main.rs", we'll use the function:
+
+```rust
+mod crate2;
+
+fn main() {
+    crate2::person();
+}
+```
+
+In the "person" function, we'll add some code:
+
+```rust
+pub fn person() {
+    println!("From the person function");
+    let mut p1 = Person::Personal_info::new("Bachelor's in Computer Science");
+}
+```
+
+The compiler is already complaining that the struct is private. Let's make the struct public by writing pub in front of it. Now the compiler is happy.
+
+Let's update the value of the variable p1:
+
+```rust
+p1.education = String::from("Master's in Computer Science");
+```
+
+The compiler is not happy, saying that it's a private field. This leads to an important point: By default, fields within a structure are private, even if the structure itself is public. We'll write pub in front of the "education" field, and the compiler is happy.
+
+Now, let's create another instance of the struct:
+
+```rust
+let p2 = Person::Personal_info {
+    age: 25,
+    education: String::from("Bachelor's in Accounting"),
+};
+```
+
+This gives us an error because we can't create the Personal_info struct directly. It contains a private field, which is the "age". In the previous case, when using the "new" function, we were able to do so because the "new" function is defined inside the module where we have defined the struct. Within the module at the same level, elements can see each other. However, in this case, since the function "person" is outside the module, it is not allowed to see the items inside the module. This means we need to make the "age" public as well if we want to update it outside the module.
+
+So, let's add pub in front of the "age" field as well. Now the code will compile successfully.
+
+Let's create another crate called "crate3.rs". Inside this file, we'll create a module called "travel_history":
+
+```rust
+mod travel_history {
+    pub enum Conveyance {
+        Car,
+        Train,
+        Aeroplane,
+    }
+}
+```
+
+Next, we'll use the enum types by creating a function called "allowance" outside the module:
+
+```rust
+pub fn allowance() {
+    let t1 = travel_history::Conveyance::Car;
+    let t2 = travel_history::Conveyance::Train;
+}
+```
+
+Moving to "main.rs", we'll call the function:
+
+```rust
+mod crate3;
+
+fn main() {
+    crate3::allowance();
+}
+```
+
+In "crate3.rs", we can see that the compiler is complaining about the privacy of "Conveyance". Let's add the pub keyword in front of the enum. Now you may note that there are no more issues. When we make an enum public, we don't need to specify its variants to be public. They will become public automatically.

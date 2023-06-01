@@ -330,3 +330,44 @@ fn main() {
 ```
 
 In "crate3.rs", we can see that the compiler is complaining about the privacy of "Conveyance". Let's add the pub keyword in front of the enum. Now you may note that there are no more issues. When we make an enum public, we don't need to specify its variants to be public. They will become public automatically.
+
+## Utilizing External Crates
+
+In the realm of programming, it is advantageous to leverage existing code created by others, as this eliminates the need to reinvent the wheel. By incorporating external code into your own projects, you can benefit from the functionality and features provided by those code libraries, much like using modules defined within separate crates.
+
+When seeking out pre-existing code from other developers, a valuable resource to explore is the official website called crates.io. This platform serves as a repository where individuals contribute their code for others to utilize.
+
+To incorporate a specific crate, such as the "array_tool" crate available on crates.io, you will need to modify your cargo.toml file. Within the cargo.toml file, add the following lines under the [dependencies] section:
+
+```toml
+[dependencies]
+array_tool = "1.0.3"
+```
+
+Having included the desired crate in your project, you can now proceed to utilize its functionality in your code. For instance, let's consider the scenario where we want to use the vec function from the "array_tool" crate.
+
+In your main.rs file, import the vec function using the use statement:
+
+```rust
+use array_tool::vec::*;
+
+fn main() {}
+```
+
+By importing the vec function in this manner, it becomes accessible within the scope of your code.
+
+To demonstrate the practical use of the imported function, let's declare a couple of vectors and find their intersection:
+
+```rust
+use array_tool::vec::*;
+
+fn main() {
+    let x = vec![1, 2, 3, 7, 6, 5];
+    let y = vec![1, 10, 6, 8, 11, 15];
+
+    let intersection = x.intersect(y);
+    println!("The intersection of the two vectors is: {:?}", intersection);
+}
+```
+
+In the provided code snippet, we define two vectors, x and y, containing different elements. By utilizing the imported vec function, we can find the intersection of these two vectors. The resulting intersection is then printed to the console using the println! macro.

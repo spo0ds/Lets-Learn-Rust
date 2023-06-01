@@ -450,3 +450,110 @@ println!("{} {}", 10 == point.0, point.1);
 ```
 
 The variable point itself is a pointer. To extract the entire tuple struct, we use _point, which changes the type of the variable from a pointer to the tuple itself. Therefore, to access the individual values, we don't need to use _. The variable name itself acts like a pointer, and using point.0 enables us to access the field values of the struct.
+
+## Use Cases of Box Pointer
+
+The Box pointer in Rust is a smart pointer that allows storing primitive types on the heap instead of the stack. There are several reasons why you might want to use Box pointers in your code.
+
+Consider an enum called List, which has two variants: Cons and Nil.
+
+```rust
+enum List {
+    Cons(i32, List),
+    Nil,
+}
+```
+
+The Cons variant contains an integer value and another List, creating a chain of items. It may seem surprising that when using the Cons variant, we need to attach two items to it: an i32 value and another List, which can be either Cons or Nil. If a Cons variant is encountered, the process repeats with two more attached items. This continues until we reach the Nil variant, which indicates the end of the list.
+
+Let's see an example that demonstrates the use of this enum:
+
+```rust
+enum List {
+    Cons(i32, List),
+    Nil,
+}
+
+fn main() {
+    let list = List::Cons(1, List::Cons(2, List::Cons(3, List::Nil)));
+}
+```
+
+The compiler raises an error stating that the recursive type List has an infinite size. The reason for this error is that we have defined a list with a variant that refers to itself, creating an infinite chain. As a result, Rust cannot determine how much space it needs to allocate for a List value. To better understand this, we need to learn how Rust determines the space requirements for non-recursive type enums.
+
+Consider a simpler enum:
+
+```rust
+enum Conveyance {
+    Car(i32),
+    Train(i32),
+    Aeroplane(i32),
+    Walk,
+}
+```
+
+When determining the space allocation for the Conveyance type, Rust examines each variant to find the one that requires the most space. The first three variants (Car, Train, and Aeroplane) have an i32 value attached to them, so they require a fixed amount of memory. The final variant, Walk, does not require any additional memory because there are no values attached to it. Therefore, the maximum space required for a variable of type Conveyance is equal to the memory used by an i32 value.
+
+In contrast, when Rust analyzes the List enum, it knows that the Nil variant does not require any additional memory. However, it cannot compute the exact space needed for the Cons variant. This is because the first value is an i32, but the second part is another List, and its space requirement is unknown beforehand due to its recursive nature.
+
+This problem of undetermined size can be resolved by using Box pointers. Before addressing the issue, let's simplify the code a bit. We'll bring the List variants into scope before the main function:
+
+```rust
+use List::{Cons, Nil};
+```
+
+Next, we can simplify the code in the main function by removing List:: from all the variants:
+
+```rust
+fn main() {
+    let list = Cons(1, Cons(2, Cons(3, Nil)));
+}
+```
+
+Now let's resolve the problem. We will enclose the List inside the Cons variant in a Box:
+
+```rust
+enum List {
+    Cons(i32, Box<List>),
+    Nil,
+}
+```
+
+This means that we will use a smart Box pointer to refer to the List, which may contain further List elements.
+
+Inside the main program, we will create new Box pointers to point to the List variants:
+
+```rust
+fn main() {
+    let list = Cons(1, Box::new(Cons(2, Box::new(Cons(3, Box::new(Nil))))));
+}
+```
+
+Now the compiler no longer raises an error. This is because the compiler now knows the exact size of the variants. For the Cons variant, it knows that it contains an i32 value and another pointer. Since the pointer is merely a memory address and takes a fixed amount of space, we don't encounter any issues.
+
+Let's display the list:
+
+```rust
+println!("{:?}", list);
+```
+
+The compiler will raise another error, stating that "List doesn't implement the Debug trait." To resolve this, we can derive the Debug trait for the List enum using the #[derive(Debug)] attribute:
+
+```rust
+#[derive(Debug)]
+enum List {
+    Cons(i32, Box<List>),
+    Nil,
+}
+
+use List::{Cons, Nil};
+
+fn main() {
+    let list = Cons(1, Box::new(Cons(2, Box::new(Cons(3, Box::new(Nil))))));
+    println!("{:?}", list);
+}
+```
+
+![box_infinite](./box_infinite.png)
+
+Cons lists are a data structure commonly found in programming languages and their dialects. They consist of chained items where elements can be traversed by following links or pointers. Such data structures are similar to linked lists in programming, as they have a similar structure and semantics. Cons lists are used in various problems, such as storing the representation of sparse matrices, adding long positive integers, creating symbol tables, and more.

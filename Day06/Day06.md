@@ -371,3 +371,82 @@ fn main() {
 ```
 
 In the provided code snippet, we define two vectors, x and y, containing different elements. By utilizing the imported vec function, we can find the intersection of these two vectors. The resulting intersection is then printed to the console using the println! macro.
+
+## Fundamentals of Smart Pointers
+
+In programming, the term "pointer" generally refers to a variable that holds the memory address where data is stored, rather than the actual data value itself. This notion of pointing to data allows us to access and manipulate the data indirectly by following the address to its corresponding memory location.
+
+In Rust, the most common and basic type of pointer is called a "reference." References, indicated by the & symbol, allow borrowing the value they point to without any additional capabilities. Unlike references, smart pointers go beyond simple pointing and possess special capabilities and metadata. Typically, smart pointers are implemented as data structures that act as pointers while also providing additional metadata and functionality. Rust offers various types of smart pointers, each with its unique capabilities and metadata.
+
+In this discussion, we will explore a particular type of smart pointer known as a "reference counting smart pointer." This smart pointer enables the functionality of having multiple owners for a piece of data by keeping track of the number of owners. When no owners remain, the data is automatically cleaned up from memory. We have already been using two smart pointers in our code examples, namely String and vector. Both of these types possess special information about the capacity they occupy in memory and own the data they store.
+
+Let's delve into the implementation of our first smart pointer. The most common and fundamental smart pointer in Rust is called the "Box" smart pointer. By default, Rust allocates variables in stack memory. However, the Box smart pointer allows referencing data stored in heap memory.
+
+```rust
+fn main() {
+    let x = Box::new(5.5);
+}
+```
+
+In this example, we create a variable named x that points to the value 5.5, which is stored in the heap. The variable x itself contains a pointer to the address where the value 5.5 is stored in the heap. Consequently, the variable x resides in the stack, while the actual value it points to, i.e., 5.5, is located in the heap.
+
+Now, let's consider a scenario where we have another variable, y, of primitive type, and its value is also 5.5. Since y is a primitive type with a fixed size, it will be stored in the stack.
+
+Since both variables hold the same value but reside in different memory locations (x on the heap and y on the stack), we can compare the two values to check for equality:
+
+```rust
+println!("Are the values equal? {}", y == *x);
+```
+
+Output:
+
+Are the values equal? true
+
+To dereference the value pointed to by variable x, we use the \* operator.
+
+Let's explore a slightly more complex example to solidify our understanding:
+
+```rust
+fn main() {
+    let a = 7;
+    let a_ref = &a; // Also resides in the stack
+
+    let b = Box::new(a); // Copy of 'a' will be stored in the heap
+}
+```
+
+In this case, the variable a resides in the stack, and the variable a_ref points to its memory location, which also resides in the stack. As for the Box pointer, it creates a copy of the value of a and stores it in the heap. The variable b points to the copied value in the heap, and the pointer variable b itself resides in the stack. Pointers themselves take a fixed amount of memory since they represent memory addresses. However, the values they point to can vary in size, which is why they are allocated in the heap.
+
+What happens if we pass a_ref instead of a to the Box::new function?
+
+Notice that the type of variable b changes from Box<i32> to Box<&i32>. This means that the value being pointed to by variable b is a reference to an integer value. Instead of storing the value 7 in the heap, a reference to the value 7 is stored.
+
+Now, let's update the value of a and print the values of a and b:
+
+```rust
+fn main() {
+    let mut a = 7;
+    let a_ref = &a;
+
+    let b = Box::new(a);
+    println!("The value of b is {}", b);
+
+    a = 10;
+    println!("The value of a is {} and b is {}", a, b);
+}
+```
+
+Output:
+
+The value of a is 10 and b is 7
+
+The reason for this outcome is that a and b are separate variables stored in different memory locations. Although b is a pointer, it is the owner of the value stored in the heap.
+
+In some cases, we may not need to explicitly dereference the values by using the \* operator. We can directly access the fields of the struct without dereferencing the pointer using the . operator:
+
+```rust
+let point = Box::new((10, 15));
+println!("{} {}", 10 == point.0, point.1);
+```
+
+The variable point itself is a pointer. To extract the entire tuple struct, we use _point, which changes the type of the variable from a pointer to the tuple itself. Therefore, to access the individual values, we don't need to use _. The variable name itself acts like a pointer, and using point.0 enables us to access the field values of the struct.
